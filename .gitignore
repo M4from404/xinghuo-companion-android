@@ -1,0 +1,21 @@
+.gradle/
+**/build/
+local.properties
+*.jks
+*.p12
+*signing.properties
+test-results/
+__pycache__/
+
+# IDE 与系统
+.idea/
+*.iml
+.cxx/
+captures/
+.DS_Store
+
+# 构建产物
+*.apk
+*.aab
+*.ap_
+*.dex

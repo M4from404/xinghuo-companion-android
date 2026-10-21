@@ -1,0 +1,46 @@
+plugins { id 'com.android.application'; id 'com.chaquo.python' }
+def signing = new Properties()
+def signingFile = file('../../android-signing/signing.properties')
+if (signingFile.exists()) signingFile.withInputStream { signing.load(it) }
+android {
+    namespace 'cn.xinghuo.companion'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'cn.xinghuo.companion'
+        minSdk 26
+        targetSdk 35
+        versionCode 10000
+        versionName '1.0.0'
+        ndk { abiFilters 'arm64-v8a', 'x86_64' }
+    }
+    signingConfigs {
+        release {
+            if (signingFile.exists()) {
+                storeFile file(signing.getProperty('storeFile'))
+                storePassword signing.getProperty('storePassword')
+                keyAlias signing.getProperty('keyAlias')
+                keyPassword signing.getProperty('storePassword')
+            }
+        }
+    }
+    buildTypes {
+        release { signingConfig signingConfigs.release; minifyEnabled false }
+        debug { applicationIdSuffix '.debug'; versionNameSuffix '-debug' }
+    }
+    buildFeatures { buildConfig true }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+chaquopy {
+    defaultConfig {
+        version '3.13'
+        buildPython System.getenv('XINGHUO_BUILD_PYTHON') ?: 'python'
+        pip {
+            options '--find-links', rootProject.file('wheels').absolutePath
+            install 'edge-tts==7.2.8'
+            ['aiohttp-3.14.3', 'multidict-6.9.1', 'yarl-1.25.1', 'frozenlist-1.8.0', 'propcache-0.5.4'].each {
+                install rootProject.file("wheels/${it}-py3-none-any.whl").absolutePath
+            }
+        }
+        pyc { pip = false; src = false }
+    }
+}
